@@ -1,47 +1,57 @@
-<!-- formular-test.html -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Preisrechner Testformular</title>
+
+  <!-- ✅ Tailwind CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+  <!-- ✅ Dein Formular-JavaScript -->
   <script defer src="formular.js"></script>
+
   <style>
     body {
       font-family: sans-serif;
       max-width: 600px;
       margin: 2rem auto;
     }
-    label { display: block; margin-top: 1rem; }
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
   </style>
 </head>
-<body>
-  <h1>Gasmoeller Preisrechner (Test)</h1>
+<body class="bg-gray-100 p-6 rounded shadow">
 
-  <form id="preisrechner-form">
-    <label>Name:<br>
-      <input type="text" name="name" required>
-    </label>
+  <h1 class="text-xl font-bold text-center mb-4">🚀 Preisrechner (Test)</h1>
 
-    <label>Telefonnummer:<br>
-      <input type="tel" name="phone" required>
-    </label>
+  <form id="preisrechner-formular" class="space-y-4">
+    <div>
+      <label for="name" class="font-semibold">Name:</label>
+      <input type="text" id="name" name="name" required
+             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
+    </div>
 
-    <label>E-Mail:<br>
-      <input type="email" name="email">
-    </label>
+    <div>
+      <label for="email" class="font-semibold">E-Mail:</label>
+      <input type="email" id="email" name="email" required
+             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
+    </div>
 
-    <label>Menge (Liter):<br>
-      <input type="range" name="menge" min="500" max="6000" value="3000" step="100"
-             oninput="document.getElementById('menge-output').textContent = this.value">
-      <span id="menge-output">3000</span> L
-    </label>
+    <div>
+      <label for="nachricht" class="font-semibold">Nachricht:</label>
+      <textarea id="nachricht" name="nachricht" rows="4"
+                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"></textarea>
+    </div>
 
-    <!-- Honeypot -->
-    <input type="text" name="website" autocomplete="off" style="display:none">
+    <button type="submit"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
+      Absenden
+    </button>
 
-    <button type="submit">Absenden</button>
+    <p id="formular-status" class="text-sm text-green-700 mt-2 hidden">Deine Nachricht wurde gesendet!</p>
   </form>
 
-  <p id="response" style="margin-top: 1rem;"></p>
 </body>
 </html>

@@ -1,30 +1,22 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('preisrechner-form');
-  const responseBox = document.getElementById('response');
+document.getElementById("preisrechner-formular").addEventListener("submit", function(e) {
+  e.preventDefault();
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
 
-    const formData = new FormData(form);
-    formData.append('action', 'send_calculator_email'); // WP-Hook
-
-    try {
-      const response = await fetch('/wp-admin/admin-ajax.php', {
-        method: 'POST',
-        body: formData
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        responseBox.textContent = '✅ Anfrage erfolgreich gesendet.';
-        form.reset();
-      } else {
-        responseBox.textContent = '⚠️ Fehler: ' + (result.message || 'Unbekannter Fehler.');
-      }
-    } catch (err) {
-      console.error(err);
-      responseBox.textContent = '❌ Technischer Fehler beim Senden.';
-    }
+  fetch("https://deine-server-url.de/formular-handler.php", {
+    method: "POST",
+    body: formData
+  })
+  .then(response => {
+    if (!response.ok) throw new Error("Serverfehler");
+    return response.text();
+  })
+  .then(result => {
+    document.getElementById("formular-status").classList.remove("hidden");
+    form.reset();
+  })
+  .catch(error => {
+    alert("Fehler beim Absenden: " + error.message);
   });
 });

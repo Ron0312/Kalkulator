@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preisrechner zur Lead-Generierung - Gasmoeller.de</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        #gasmoeller-rechner-app { font-family: 'Inter', sans-serif; }
+        #gasmoeller-rechner-app .calculator-step { display: none; animation: fadeIn 0.5s; width: 100%; }
+        #gasmoeller-rechner-app .calculator-step.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #gasmoeller-rechner-app .progress-bar-fill { transition: width 0.4s ease-in-out; }
+        #gasmoeller-rechner-app .option-box { position: relative; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
+        #gasmoeller-rechner-app .option-box:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        #gasmoeller-rechner-app .option-box.selected { border-color: #04527E; background-color: #eef7ff; }
+        #gasmoeller-rechner-app .option-box .check-icon { display: none; position: absolute; top: 0.5rem; right: 0.5rem; color: #04527E; }
+        #gasmoeller-rechner-app .option-box.selected .check-icon { display: block; }
+        #gasmoeller-rechner-app .loader { border: 4px solid #f3f3f3; border-top: 4px solid #04527E; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #gasmoeller-rechner-app .btn-primary { background-color: #04527E !important; color: white !important; border: none !important; padding: 0.75rem 1.5rem !important; line-height: 1.5rem !important; }
+        #gasmoeller-rechner-app .btn-primary:hover { background-color: #034165 !important; }
+        #gasmoeller-rechner-app .btn-secondary { background-color: #e5e7eb !important; color: #374151 !important; border: none !important; padding: 0.75rem 1.5rem !important; line-height: 1.5rem !important; }
+        #gasmoeller-rechner-app .btn-secondary:hover { background-color: #d1d5db !important; }
+        #gasmoeller-rechner-app .text-brand { color: #04527E !important; }
+        #gasmoeller-rechner-app .bg-brand { background-color: #04527E !important; }
+        #gasmoeller-rechner-app a { color: #04527E !important; text-decoration: underline !important; }
+        .honeypot-field { position: absolute; left: -5000px; visibility: hidden; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="gasmoeller-rechner-app" class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-lg mx-auto">
+        <div id="progress-container" class="mb-8">
+            <div class="flex justify-between items-center mb-2">
+                <span id="progress-text" class="text-sm font-medium text-gray-600"></span>
+                <span id="progress-percent" class="text-sm font-bold text-brand"></span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5"><div id="progress-bar" class="bg-brand h-2.5 rounded-full progress-bar-fill"></div></div>
+        </div>
+        
+        <div id="step-0" class="calculator-step active">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Ihr Weg zum persönlichen Angebot</h2>
+            <p class="text-gray-600 mb-6">Beantworten Sie wenige Fragen und wir rufen Sie mit einem tagesaktuellen Preis zurück.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="option-box cursor-pointer bg-gray-100 rounded-lg p-4 text-center border-2" onclick="handleOptionSelect(this)" data-key="customerType" data-value="Privatkunde">
+                    <svg class="check-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 class="font-semibold">Ich bin Privatkunde</h3>
+                </div>
+                <div class="option-box cursor-pointer bg-gray-100 rounded-lg p-4 text-center border-2" onclick="handleOptionSelect(this)" data-key="customerType" data-value="Gewerbekunde">
+                    <svg class="check-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 class="font-semibold">Ich bin Gewerbekunde</h3>
+                </div>
+            </div>
+        </div>
+
+        <div id="step-1" class="calculator-step">
+             <h2 class="text-xl font-bold text-gray-800 mb-4">Was genau benötigen Sie?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="option-box cursor-pointer bg-gray-100 rounded-lg p-4 text-center border-2" onclick="handleOptionSelect(this)" data-key="service" data-value="lieferung">
+                    <svg class="check-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 class="font-semibold">Flüssiggas-Lieferung</h3>
+                </div>
+                <div class="option-box cursor-pointer bg-gray-100 rounded-lg p-4 text-center border-2" onclick="handleOptionSelect(this)" data-key="service" data-value="tank">
+                     <svg class="check-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 class="font-semibold">Neuer Flüssiggas-Tank</h3>
+                </div>
+            </div>
+            <button onclick="prevStep()" class="w-full mt-6 btn-secondary rounded-lg">Zurück</button>
+        </div>
+
+        <div id="step-2a" class="calculator-step">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Wohin soll geliefert/installiert werden?</h2>
+            <input type="text" id="plz-input" placeholder="Ihre Postleitzahl" class="w-full p-3 border border-gray-300 rounded-lg text-lg">
+            <p id="plz-error" class="text-red-600 text-sm mt-2 hidden">Leider liegt diese PLZ außerhalb unseres Liefergebiets (SH, HH, MV).</p>
+            <button onclick="validatePLZ()" class="w-full mt-4 btn-primary rounded-lg">Weiter</button>
+            <button onclick="prevStep()" class="w-full mt-2 btn-secondary rounded-lg">Zurück</button>
+        </div>
+
+        <div id="step-3a" class="calculator-step">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Wie viel Flüssiggas benötigen Sie?</h2>
+            <div>
+                <label for="liter-range" class="font-medium text-gray-700">Ungefähre Literzahl: <span id="liter-output" class="font-bold text-brand">3000 L</span></label>
+                <input type="range" id="liter-range" min="500" max="6000" value="3000" step="100" class="w-full h-2 bg-gray-200 rounded-lg mt-2">
+            </div>
+            <button onclick="nextStep()" class="w-full mt-6 btn-primary rounded-lg">Weiter</button>
+            <button onclick="prevStep()" class="w-full mt-2 btn-secondary rounded-lg">Zurück</button>
+        </div>
+        
+        <div id="step-2b" class="calculator-step">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Welche Art von Tank stellen Sie sich vor?</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="option-box cursor-pointer bg-gray-100 rounded-lg p-4 text-center border-2" onclick="handleOptionSelect(this)" data-key="tankArt" data-value="Oberirdisch">
+                    <svg class="check-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Oberirdisch
+                </div>
+                <div class="option-box cursor-pointer bg-gray-100 rounded-lg p-4 text-center border-2" onclick="handleOptionSelect(this)" data-key="tankArt" data-value="Halbunterirdisch">
+                    <svg class="check-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Halbunterirdisch
+                </div>
+                <div class="option-box cursor-pointer bg-gray-100 rounded-lg p-4 text-center border-2" onclick="handleOptionSelect(this)" data-key="tankArt" data-value="Unterirdisch">
+                    <svg class="check-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Unterirdisch
+                </div>
+            </div>
+            <button onclick="prevStep()" class="w-full mt-6 btn-secondary rounded-lg">Zurück</button>
+        </div>
+
+        <div id="step-2c" class="calculator-step">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Welche Behältergröße passt zu Ihnen?</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="option-box cursor-pointer bg-gray-100 rounded-lg p-4 border-2" onclick="handleOptionSelect(this)" data-key="tankGroesse" data-value="1.2t / 2700l"><svg class="check-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><h4 class="font-bold">1.2 t / 2.700 l</h4></div>
+                <div class="option-box cursor-pointer bg-gray-100 rounded-lg p-4 border-2" onclick="handleOptionSelect(this)" data-key="tankGroesse" data-value="2.1t / 4850l"><svg class="check-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><h4 class="font-bold">2.1 t / 4.850 l</h4></div>
+                <div class="option-box cursor-pointer bg-gray-100 rounded-lg p-4 border-2" onclick="handleOptionSelect(this)" data-key="tankGroesse" data-value="2.9t / 6400l"><svg class="check-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><h4 class="font-bold">2.9 t / 6.400 l</h4></div>
+                <div class="option-box cursor-pointer bg-gray-100 rounded-lg p-4 border-2" onclick="handleOptionSelect(this)" data-key="tankGroesse" data-value="Beratung erwünscht"><svg class="check-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><h4 class="font-bold">Ich bin unsicher</h4></div>
+            </div>
+             <button onclick="prevStep()" class="w-full mt-6 btn-secondary rounded-lg">Zurück</button>
+        </div>
+
+        <div id="step-3b" class="calculator-step">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Möchten Sie den Tank kaufen oder mieten?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="option-box cursor-pointer bg-gray-100 rounded-lg p-6 text-center border-2" onclick="handleOptionSelect(this)" data-key="kaufOption" data-value="Kaufen"><svg class="check-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Kaufen</div>
+                <div class="option-box cursor-pointer bg-gray-100 rounded-lg p-6 text-center border-2" onclick="handleOptionSelect(this)" data-key="kaufOption" data-value="Mieten"><svg class="check-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Mieten</div>
+            </div>
+            <button onclick="prevStep()" class="w-full mt-6 btn-secondary rounded-lg">Zurück</button>
+        </div>
+
+        <div id="step-4" class="calculator-step">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Ihr direkter Draht zu uns</h2>
+            <p class="text-gray-600 mb-6">Wir rufen Sie zurück und nennen Ihnen Ihr persönliches Angebot.</p>
+            <div class="space-y-3">
+                <input type="text" id="name" placeholder="Ihr Name" class="w-full p-3 border rounded-lg">
+                <input type="tel" id="phone" placeholder="Ihre Telefonnummer" class="w-full p-3 border rounded-lg">
+                <input type="email" id="email" placeholder="Ihre E-Mail (optional)" class="w-full p-3 border rounded-lg">
+                <div class="honeypot-field"><label for="website">Website</label><input type="text" id="website" name="website" autocomplete="off"></div>
+            </div>
+            <div class="mt-4 flex items-start">
+                <input type="checkbox" id="privacy" class="h-5 w-5 mt-1">
+                <label for="privacy" class="ml-3 text-sm text-gray-600">Ich habe die <a href="#">Datenschutzerklärung</a> gelesen und stimme zu.</label>
+            </div>
+            <button id="submit-button" onclick="submitForm()" class="w-full mt-4 btn-primary bg-green-600 rounded-lg disabled:bg-gray-400 flex items-center justify-center" disabled>
+                <span id="submit-button-text">Rückruf für persönliches Angebot anfordern</span>
+                <div id="submit-loader" class="loader hidden ml-3"></div>
+            </button>
+            <button onclick="prevStep()" class="w-full mt-2 btn-secondary rounded-lg">Zurück</button>
+        </div>
+
+         <div id="step-5" class="calculator-step text-center">
+            <svg class="w-16 h-16 mx-auto text-green-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Vielen Dank!</h2>
+            <p class="text-gray-600 max-w-md mx-auto">Ihre Anfrage wurde erfolgreich übermittelt. Einer unserer Experten wird Sie in Kürze anrufen.</p>
+            <button onclick="resetCalculator()" class="mt-6 text-sm text-gray-500 hover:underline">Neue Anfrage starten</button>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const FLOW_MAP = {
+            'step-0': { next: 'step-1' },
+            'step-1': { prev: 'step-0', next: 'step-2a' },
+            'step-2a': { prev: 'step-1', next: (data) => data.service === 'lieferung' ? 'step-3a' : 'step-2b' },
+            'step-3a': { prev: 'step-2a', next: 'step-4' },
+            'step-2b': { prev: 'step-2a', next: 'step-2c' },
+            'step-2c': { prev: 'step-2b', next: 'step-3b' },
+            'step-3b': { prev: 'step-2c', next: 'step-4' },
+            'step-4': { prev: (data) => data.service === 'lieferung' ? 'step-3a' : 'step-3b', next: 'step-5' },
+            'step-5': { prev: 'step-4' }
+        };
+        const DELIVERY_POSTCODES = {
+            SH: { range: [20000, 25999] },
+            MV: { range: [17000, 19999] }
+        };
+
+        // --- STATE ---
+        let history = ['step-0'];
+        let formData = {};
+        let fullPath = [];
+
+        // --- DOM ELEMENTS ---
+        const dom = {
+            privacy: document.getElementById('privacy'),
+            submitBtn: document.getElementById('submit-button'),
+            submitBtnText: document.getElementById('submit-button-text'),
+            submitLoader: document.getElementById('submit-loader'),
+            literRange: document.getElementById('liter-range'),
+            literOutput: document.getElementById('liter-output'),
+            plzInput: document.getElementById('plz-input'),
+            plzError: document.getElementById('plz-error'),
+            progressContainer: document.getElementById('progress-container'),
+            progressBar: document.getElementById('progress-bar'),
+            progressText: document.getElementById('progress-text'),
+            progressPercent: document.getElementById('progress-percent'),
+        };
+
+        // --- EVENT LISTENERS ---
+        dom.privacy.addEventListener('change', (e) => { formData.privacy = e.target.checked; dom.submitBtn.disabled = !e.target.checked; });
+        dom.literRange.addEventListener('input', (e) => {
+            formData.menge = parseInt(e.target.value, 10);
+            dom.literOutput.textContent = `${formData.menge} L`;
+        });
+
+        // --- CORE LOGIC ---
+        function resetCalculator() { window.location.reload(); }
+
+        function showStep(stepId) {
+            document.querySelectorAll('.calculator-step').forEach(s => s.classList.remove('active'));
+            const nextStepElement = document.getElementById(stepId);
+            if(nextStepElement) {
+                nextStepElement.classList.add('active');
+                const firstInput = nextStepElement.querySelector('input, textarea');
+                if(firstInput) firstInput.focus();
+            }
+            renderUI();
+        }
+
+        function nextStep() {
+            const currentStepId = history[history.length - 1];
+            const currentFlow = FLOW_MAP[currentStepId];
+            const nextStepId = typeof currentFlow.next === 'function' ? currentFlow.next(formData) : currentFlow.next;
+            if (nextStepId) {
+                history.push(nextStepId);
+                showStep(nextStepId);
+            }
+        }
+
+        function prevStep() {
+            if (history.length > 1) {
+                history.pop();
+                showStep(history[history.length - 1]);
+            }
+        }
+        
+        function handleOptionSelect(element) {
+            const key = element.dataset.key;
+            const value = element.dataset.value;
+            formData[key] = value;
+            const stepElement = document.getElementById(history[history.length - 1]);
+            stepElement.querySelectorAll('.option-box').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            if (key === 'service') {
+                if (value === 'lieferung') {
+                    fullPath = ['step-0', 'step-1', 'step-2a', 'step-3a', 'step-4', 'step-5'];
+                } else {
+                    fullPath = ['step-0', 'step-1', 'step-2a', 'step-2b', 'step-2c', 'step-3b', 'step-4', 'step-5'];
+                }
+            }
+            nextStep();
+        }
+        
+        function validatePLZ() {
+            const plzValue = dom.plzInput.value;
+            const plz = parseInt(plzValue, 10);
+            const isSH = plz >= DELIVERY_POSTCODES.SH.range[0] && plz <= DELIVERY_POSTCODES.SH.range[1];
+            const isMV = plz >= DELIVERY_POSTCODES.MV.range[0] && plz <= DELIVERY_POSTCODES.MV.range[1];
+
+            if (plzValue.length === 5 && (isSH || isMV)) {
+                dom.plzError.classList.add('hidden');
+                formData.plz = plzValue;
+                nextStep();
+            } else {
+                dom.plzError.classList.remove('hidden');
+            }
+        }
+
+        async function submitForm() {
+            ['name', 'phone', 'email', 'website'].forEach(key => formData[key] = document.getElementById(key).value);
+            if (!formData.name || !formData.phone || !formData.privacy) {
+                alert('Bitte geben Sie Ihren Namen und Ihre Telefonnummer ein und stimmen Sie der Datenschutzerklärung zu.'); return;
+            }
+            
+            dom.submitBtn.disabled = true;
+            dom.submitBtnText.textContent = 'Anfrage wird gesendet...';
+            dom.submitLoader.classList.remove('hidden');
+
+            const body = new FormData();
+            body.append('action', 'send_calculator_email');
+            Object.keys(formData).forEach(key => {
+                body.append(key, formData[key]);
+            });
+
+            try {
+                const response = await fetch('/wp-admin/admin-ajax.php', {
+                    method: 'POST',
+                    body: body
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    nextStep(); 
+                    console.log('Form data submitted for callback:', formData);
+                } else {
+                    throw new Error(result.data.message || 'Unknown error from server');
+                }
+            } catch (error) {
+                console.error('Fetch Error:', error);
+                alert('Es gab ein Problem beim Senden Ihrer Anfrage. Bitte versuchen Sie es später erneut.');
+                dom.submitBtn.disabled = false;
+                dom.submitBtnText.textContent = 'Rückruf für persönliches Angebot anfordern';
+                dom.submitLoader.classList.add('hidden');
+            }
+        }
+        
+        // --- RENDER & UI ---
+        function renderUI() {
+            updateProgressBar();
+        }
+
+        function updateProgressBar() {
+            const currentStepId = history[history.length - 1];
+            if (currentStepId === 'step-5' || currentStepId === 'step-0') {
+                dom.progressContainer.style.display = 'none'; return;
+            }
+            dom.progressContainer.style.display = 'block';
+            
+            const totalSteps = fullPath.length > 0 ? fullPath.length - 2 : 0;
+            const currentStepIndex = history.length - 1;
+
+            if (totalSteps > 0) {
+                const percentage = (currentStepIndex / totalSteps) * 100;
+                dom.progressBar.style.width = `${Math.min(100, percentage)}%`;
+                dom.progressPercent.textContent = `${Math.round(Math.min(100, percentage))}%`;
+                dom.progressText.textContent = `Schritt ${currentStepIndex} von ${totalSteps}`;
+            } else {
+                dom.progressBar.style.width = `0%`;
+                dom.progressPercent.textContent = `0%`;
+                dom.progressText.textContent = `Schritt 1 von ...`;
+            }
+        }
+        
+        // --- INITIALIZATION ---
+        function init() {
+            const defaultFormData = { customerType: null, service: null, plz: '', menge: 3000, tankArt: null, tankGroesse: null, kaufOption: null, name: '', phone: '', email: '', privacy: false };
+            formData = {...defaultFormData};
+            history = ['step-0'];
+            fullPath = [];
+            showStep('step-0');
+        }
+        init();
+    </script>
+</body>
+</html>

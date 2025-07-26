@@ -1,40 +1,33 @@
 <?php
-// Sicherer E-Mail-Versand aus WordPress per AJAX
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = htmlspecialchars($_POST["name"] ?? "");
+    $phone = htmlspecialchars($_POST["phone"] ?? "");
+    $email = htmlspecialchars($_POST["email"] ?? "");
+    $website = $_POST["website"] ?? "";
+    $privacy = $_POST["privacy"] ?? "";
 
-add_action('wp_ajax_send_calculator_email', 'handle_calculator_form');
-add_action('wp_ajax_nopriv_send_calculator_email', 'handle_calculator_form');
-
-function handle_calculator_form() {
-    if (!empty($_POST['website'])) {
-        wp_send_json_error(['message' => 'Spam erkannt (Honeypot).']);
-        return;
+    if (!empty($website)) {
+        http_response_code(400);
+        echo "Spam erkannt.";
+        exit;
     }
 
-    $name  = sanitize_text_field($_POST['name'] ?? '');
-    $phone = sanitize_text_field($_POST['phone'] ?? '');
-    $email = sanitize_email($_POST['email'] ?? '');
-    $menge = sanitize_text_field($_POST['menge'] ?? '');
-
-    if (empty($name) || empty($phone)) {
-        wp_send_json_error(['message' => 'Pflichtfelder fehlen.']);
-        return;
+    if (empty($name) || empty($phone) || !$privacy) {
+        http_response_code(400);
+        echo "Pflichtfelder fehlen.";
+        exit;
     }
 
-    $to = 'vertrieb@gasmoeller.de';
-    $subject = 'Neue Anfrage über den Preisrechner';
-    $message = "Name: $name\nTelefon: $phone\nE-Mail: $email\nMenge: $menge\n\n---\n";
-    foreach ($_POST as $key => $val) {
-        if (!in_array($key, ['action', 'website'])) {
-            $message .= "$key: " . sanitize_text_field($val) . "\n";
-        }
-    }
+    $to = "info@gasmoeller.de";
+    $subject = "Neue Anfrage über den Preisrechner";
+    $message = "Name: $name\nTelefon: $phone\nE-Mail: $email";
+    $headers = "From: webmaster@gasmoeller.de\r\n";
 
-    $headers = ['Content-Type: text/plain; charset=UTF-8'];
-    $sent = wp_mail($to, $subject, $message, $headers);
-
-    if ($sent) {
-        wp_send_json_success(['message' => 'Nachricht erfolgreich versendet.']);
+    if (mail($to, $subject, $message, $headers)) {
+        echo "Vielen Dank! Wir melden uns schnellstmöglich.";
     } else {
-        wp_send_json_error(['message' => 'Versand fehlgeschlagen.']);
+        http_response_code(500);
+        echo "Es gab ein Problem beim Versenden.";
     }
 }
+?>

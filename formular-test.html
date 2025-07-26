@@ -1,57 +1,38 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <title>Preisrechner Testformular</title>
-
-  <!-- ✅ Tailwind CSS CDN -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-  <!-- ✅ Dein Formular-JavaScript -->
-  <script defer src="formular.js"></script>
-
-  <style>
-    body {
-      font-family: sans-serif;
-      max-width: 600px;
-      margin: 2rem auto;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preisrechner zur Lead-Generierung - Gasmoeller.de</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script defer src="formular.js"></script>
+    <style>
+        #gasmoeller-rechner-app { font-family: 'Inter', sans-serif; }
+        .honeypot-field { position: absolute; left: -5000px; visibility: hidden; }
+    </style>
 </head>
-<body class="bg-gray-100 p-6 rounded shadow">
-
-  <h1 class="text-xl font-bold text-center mb-4">🚀 Preisrechner (Test)</h1>
-
-  <form id="preisrechner-formular" class="space-y-4">
-    <div>
-      <label for="name" class="font-semibold">Name:</label>
-      <input type="text" id="name" name="name" required
-             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div id="gasmoeller-rechner-app" class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-lg mx-auto">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Ihr direkter Draht zu uns</h2>
+        <p class="text-gray-600 mb-6">Wir rufen Sie zurück und nennen Ihnen Ihr persönliches Angebot.</p>
+        <form id="kontaktformular" method="POST" action="formular-handler.php" class="space-y-4">
+            <input type="text" name="name" placeholder="Ihr Name" required class="w-full p-3 border rounded-lg">
+            <input type="tel" name="phone" placeholder="Ihre Telefonnummer" required class="w-full p-3 border rounded-lg">
+            <input type="email" name="email" placeholder="Ihre E-Mail (optional)" class="w-full p-3 border rounded-lg">
+            <div class="honeypot-field">
+                <label for="website">Website</label>
+                <input type="text" name="website" autocomplete="off">
+            </div>
+            <div class="flex items-start">
+                <input type="checkbox" name="privacy" required class="h-5 w-5 mt-1">
+                <label class="ml-3 text-sm text-gray-600">Ich habe die <a href="#">Datenschutzerklärung</a> gelesen und stimme zu.</label>
+            </div>
+            <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">Absenden</button>
+        </form>
+        <div id="response" class="text-sm text-green-600 mt-4 hidden">Danke für Ihre Anfrage!</div>
     </div>
-
-    <div>
-      <label for="email" class="font-semibold">E-Mail:</label>
-      <input type="email" id="email" name="email" required
-             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
-    </div>
-
-    <div>
-      <label for="nachricht" class="font-semibold">Nachricht:</label>
-      <textarea id="nachricht" name="nachricht" rows="4"
-                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"></textarea>
-    </div>
-
-    <button type="submit"
-            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
-      Absenden
-    </button>
-
-    <p id="formular-status" class="text-sm text-green-700 mt-2 hidden">Deine Nachricht wurde gesendet!</p>
-  </form>
-
 </body>
 </html>
